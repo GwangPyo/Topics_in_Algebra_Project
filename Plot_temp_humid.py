@@ -15,7 +15,7 @@ from sklearn.preprocessing import StandardScaler
 from scipy import stats
 import warnings
 warnings.filterwarnings('ignore')
-%matplotlib inline
+# matplotlib inline
 
 data = pd.read_csv('energydata_complete.csv')
 #x_data=data[['T1','RH_1','T2','RH_2','T3','RH_3','T4','RH_4','T5','RH_5','T6','RH_6','T7','RH_7','T8','RH_8','T9','RH_9','T_out','RH_out']].values
