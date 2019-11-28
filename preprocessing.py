@@ -86,21 +86,31 @@ def appliancePreprocessing(data):
 
 def load_and_preprocessing():
     csv_data = pd.read_csv("energydata_complete.csv", header=0)
-    npdata = csv_data.values
-    time = npdata[:, 0]
-    appliance = npdata[:, 1]
-    light = npdata[:, 2]
+    print(csv_data.dtypes)
+
+    time = csv_data["date"].values
+    appliance = csv_data["Appliances"].values
+    light = csv_data["lights"].values
 
     # Note that rv1 rv2  is just random variable
-    other = npdata[:, 3: -2]
-
     preprocessed = []
     preprocessed.append(time_parser(time))
     preprocessed.append(appliancePreprocessing(appliance))
+    np.save("appliances", appliancePreprocessing(appliance))
     preprocessed.append(lightParser(light))
-    for c in range(other.shape[1]):
-        column = other[:, c]
+
+    """
+    Why these are ugly? 
+    Because direct calling values makes numpy array with dtype object. 
+    There must be better way, but don't care about it a bit.... 
+    
+    """
+    for c in  ["T1", "RH_1", "T2", "RH_2", "T3", "RH_3", "T4", "RH_4", "T5", "RH_5", "T6",
+                "RH_6", "T7", "RH_7", "T8", "RH_8", "T9", "RH_9", "T_out",
+                "Press_mm_hg", "RH_out", "Windspeed", "Visibility", "Tdewpoint"]:
+        column = csv_data[c].values
         preprocessed.append(np.expand_dims(standardize(column), axis=-1))
+
     return np.hstack(preprocessed)
 
 
