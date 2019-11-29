@@ -14,14 +14,14 @@ def timepreprocessing(string) -> np.ndarray:
     0: check is holiday
     1, 2: day and month
     3, 4: hours
-
+    4, 5: minute
     """
     datetimeObject = datetime.datetime.strptime(string, "%Y-%m-%d %H:%M:%S")
     weekday = datetimeObject.weekday()
     """
 
     """
-    ret = np.zeros(5)
+    ret = np.zeros(7)
     # mon 0, tues 1, ... sat 5, sun 6
     if weekday == 5 or weekday == 6: # is it holiday?
         ret[0] = 0
@@ -35,6 +35,10 @@ def timepreprocessing(string) -> np.ndarray:
     hour = datetimeObject.timetuple().tm_hour
     ret[3] = np.cos(hour/24 * 2 * np.pi)
     ret[4] = np.sin(hour/24 * 2 * np.pi)
+
+    minuite = datetimeObject.timetuple().tm_min
+    ret[5] = np.cos(minuite/60 * 2 * np.pi)
+    ret[6] = np.sin(minuite/60 * 2 * np.pi)
     return ret
 
 
@@ -54,11 +58,11 @@ def binary(data):
     :param data: light data. Note that light data is multiplication of 10
     :return: binary encoding of data
     """
-    ret = np.zeros(3)
-    data = data // 10
-    ret[2] = (data  //4 ) % 2
-    ret[1] = (data // 2) % 2
-    ret[0] = data % 2
+    ret = np.zeros(4)
+    ret[3] = int(data >= 30)
+    ret[2] = int (data == 20)
+    ret[1] = int(data == 10)
+    ret[0] = int(data == 0)
     return ret
 
 
@@ -95,9 +99,11 @@ def load_and_preprocessing():
     # Note that rv1 rv2  is just random variable
     preprocessed = []
     preprocessed.append(time_parser(time))
+
     preprocessed.append(appliancePreprocessing(appliance))
     np.save("appliances", appliancePreprocessing(appliance))
     preprocessed.append(lightParser(light))
+    np.save("lights", (lightParser(light)))
 
     """
     Why these are ugly? 
@@ -105,20 +111,23 @@ def load_and_preprocessing():
     There must be better way, but don't care about it a bit.... 
     
     """
+
+    npfile = []
+    npfile.append(time_parser(time))
     for c in  ["T1", "RH_1", "T2", "RH_2", "T3", "RH_3", "T4", "RH_4", "T5", "RH_5", "T6",
                 "RH_6", "T7", "RH_7", "T8", "RH_8", "T9", "RH_9", "T_out",
                 "Press_mm_hg", "RH_out", "Windspeed", "Visibility", "Tdewpoint"]:
         column = csv_data[c].values
         preprocessed.append(np.expand_dims(standardize(column), axis=-1))
-
+        npfile.append(np.expand_dims(standardize(column), axis=-1))
+    np.save("X_data", np.hstack(npfile))
     return np.hstack(preprocessed)
 
 
-COLNAME = ["Holiday", "Day And Month (cos)", "Day And Month (sin)", "Hour And Minute(cos)", "Hour And Minute(sin)",
-          "Appliances",
-           "lights0", "light1", "light2",
-            "T1", "RH_1",
-           "T2", "RH_2", "T3", "RH_3", "T4", "RH_4", "T5", "RH_5", "T6",
+COLNAME = ["Holiday", "Day And Month (cos)", "Day And Month (sin)",
+           "Hour(cos)", "Hour(sin)", "Minute(cos)", "Minute(sin)",
+           "Appliances", "lights0", "light1", "light2", "light3",
+           "T1", "RH_1", "T2", "RH_2", "T3", "RH_3", "T4", "RH_4", "T5", "RH_5", "T6",
            "RH_6", "T7", "RH_7", "T8", "RH_8", "T9", "RH_9", "T_out",
            "Press_mm_hg", "RH_out", "Windspeed", "Visibility", "Tdewpoint"]
 
