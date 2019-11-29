@@ -1,7 +1,9 @@
 import keras.layers
 from keras.models import Model
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
+import pandas as pd
+
 
 class SupervisedLearningModel(object):
     def __init__(self, input_shape):
@@ -11,9 +13,11 @@ class SupervisedLearningModel(object):
         self.model.compile(optimizer="Adam", loss="mse")
 
     def _build_model(self):
+
         x1 = keras.layers.Input(shape= (self.input_shape, ))
         x4 = keras.layers.Dense(64, activation="relu", kernel_initializer="glorot_normal")(x1)
-        x5 = keras.layers.Dense(12, activation="relu", kernel_initializer="glorot_normal")(x4)
+        x3 = keras.layers.BatchNormalization()(x4)
+        x5 = keras.layers.Dense(12, activation="relu", kernel_initializer="glorot_normal")(x3)
         x7 = keras.layers.Dense(1, activation="linear", kernel_initializer="glorot_normal")(x5)
         return Model(input=x1, output=x7)
 
@@ -38,11 +42,11 @@ def sampling(size, validation_size=100):
 
 def to_appliance(x):
     x = np.arctanh(x)
-    MEAN = 97.6949581960983
-    DEV = 102.52229296483618
+    MEAN = 9.76949581960983
+    DEV = 10.252229296483618
     x *= DEV
     x += MEAN
-    return x
+    return x * 10
 
 
 def read_sample_number():
@@ -56,7 +60,7 @@ def commit(samplenumber):
         f.write(str(samplenumber))
 
 
-import matplotlib.pyplot as plt
+
 if __name__ =="__main__":
     ydata = np.load("appliances.npy")
     xdata2 = np.load("lights.npy")
@@ -77,7 +81,7 @@ if __name__ =="__main__":
 
     diff = []
     model.model.fit(train_x, train_y, epochs=5, batch_size=32)
-    record =np.zeros(100, 3)
+    record =np.zeros((100, 3))
     for i in range(100):
         original_one = test_y[i][0]
         inferred = model(np.expand_dims(test_x[i], 1).T).flatten()[0]
@@ -91,6 +95,7 @@ if __name__ =="__main__":
         record[i, 0] = inferred
         record[i, 1] = original_one
         record[i, 2] = abs(original_one - inferred)
+
     plt.hist(diff, bins=100)
     plt.show()
     print(model.model.evaluate(test_x, test_y))

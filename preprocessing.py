@@ -80,6 +80,7 @@ def standardize(data):
 
 
 def appliancePreprocessing(data):
+    data = data / 10
     data = standardize(data)
     ret = []
     for d in data:
@@ -137,8 +138,8 @@ class toOriginalAppliance(object):
     function which maps preprocessed appliance data to original appliance data
     This is built by class object because it has local constants whose names are very popular;
     """
-    MEAN = 97.6949581960983
-    DEV = 102.52229296483618
+    MEAN = 9.76949581960983
+    DEV = 10.252229296483618
 
     def __call__(self, form):
         form = form * self.DEV + self.MEAN
