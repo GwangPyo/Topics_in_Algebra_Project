@@ -54,11 +54,12 @@ def binary(data):
     :param data: light data. Note that light data is multiplication of 10
     :return: binary encoding of data
     """
-    ret = np.zeros(3)
+    ret = np.zeros(4)
     data = data // 10
-    ret[2] = (data  //4 ) % 2
-    ret[1] = (data // 2) % 2
-    ret[0] = data % 2
+    ret[3] = int(data>2))
+    ret[2] = int(data==2)
+    ret[1] = int(data==1)
+    ret[0] = int(data==0)
     return ret
 
 
@@ -116,7 +117,7 @@ def load_and_preprocessing():
 
 COLNAME = ["Holiday", "Day And Month (cos)", "Day And Month (sin)", "Hour And Minute(cos)", "Hour And Minute(sin)",
           "Appliances",
-           "lights0", "light1", "light2",
+           "light0", "light1", "light2","light3"
             "T1", "RH_1",
            "T2", "RH_2", "T3", "RH_3", "T4", "RH_4", "T5", "RH_5", "T6",
            "RH_6", "T7", "RH_7", "T8", "RH_8", "T9", "RH_9", "T_out",
