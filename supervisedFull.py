@@ -18,7 +18,7 @@ class SupervisedLearningModel(object):
         x4 = keras.layers.Dense(64, activation="relu", kernel_initializer="glorot_normal")(x1)
         x3 = keras.layers.BatchNormalization()(x4)
         x5 = keras.layers.Dense(12, activation="relu", kernel_initializer="glorot_normal")(x3)
-        x7 = keras.layers.Dense(1, activation="linear", kernel_initializer="glorot_normal")(x5)
+        x7 = keras.layers.Dense(1, activation="tanh", kernel_initializer="glorot_normal")(x5)
         return Model(input=x1, output=x7)
 
     def __call__(self, *args, **kwargs):
