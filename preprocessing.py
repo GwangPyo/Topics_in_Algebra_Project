@@ -80,13 +80,22 @@ def standardize(data):
 
 
 def appliancePreprocessing(data):
-    data = data / 10
+
+    #more than 100, it is just large!
+    data = np.clip(data, a_max=100, a_min=0)
+    data[np.where(data == 100)] = 150
+    print("mean", np.mean(data))
+    data = data - np.mean(data)
+
+    data = data / 100
+    data = np.tanh(data)
+    mu = np.mean(data)
+    dev = np.std(data)
+    print("mean", mu, "dev", dev)
     data = standardize(data)
-    ret = []
-    for d in data:
-        d = np.tanh(d)
-        ret.append(d)
-    return np.expand_dims(np.array(ret), -1)
+    return np.expand_dims(data, -1)
+
+
 
 
 def load_and_preprocessing():
@@ -133,17 +142,6 @@ COLNAME = ["Holiday", "Day And Month (cos)", "Day And Month (sin)",
            "Press_mm_hg", "RH_out", "Windspeed", "Visibility", "Tdewpoint"]
 
 
-class toOriginalAppliance(object):
-    """
-    function which maps preprocessed appliance data to original appliance data
-    This is built by class object because it has local constants whose names are very popular;
-    """
-    MEAN = 9.76949581960983
-    DEV = 10.252229296483618
-
-    def __call__(self, form):
-        form = form * self.DEV + self.MEAN
-        return np.arctanh(form)
 
 
 if __name__ == "__main__":
